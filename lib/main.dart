@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:point_alarm/myHome.dart';
+import 'package:point_alarm/Pages/myHome.dart';
 
 void main() {
   runApp(MyApp());
