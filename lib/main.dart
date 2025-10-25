@@ -12,6 +12,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: 'Poppins',
+        focusColor: Color(0xffEEEEEE)
       ),
       home: MyHomePage(),
     );
