@@ -32,11 +32,23 @@ class MyHomePage extends StatelessWidget {
             child: ListView(
               shrinkWrap: true,
               children: [
-                AlarmCard(time: '07:00 AM', label: 'Morning Alarm', isActive: true),
-                AlarmCard(time: '08:30 AM', label: 'Workout Alarm', isActive: false),
+                AlarmCard(
+                  id: 1,
+                  time: '07:00 AM',
+                  label: 'Morning Alarm',
+                  type: 'Once',
+                  isActive: true,
+                ),
+                AlarmCard(
+                  id: 2,
+                  time: '08:30 AM',
+                  label: 'Workout Alarm',
+                  type: 'Once',
+                  isActive: false,
+                ),
               ],
             ),
-          )
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
