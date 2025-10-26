@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1036329119897",
+    "project_id": "pointalarm-df6af",
+    "storage_bucket": "pointalarm-df6af.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1036329119897:android:f5a5bf977aa3f544dc0808",
+        "android_client_info": {
+          "package_name": "com.example.point_alarm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0B18e9gBVLopI6MTICbetYO3pvM9sX30"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

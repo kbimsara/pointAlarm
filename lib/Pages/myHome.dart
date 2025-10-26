@@ -1,11 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:point_alarm/Components/alarmCard.dart';
 
-void main() {
-  runApp(MyHomePage());
+void main()  {
+  runApp( MyHomePage());
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  void openBox() {
+    // Function to open a box or perform an action
+    showDialog(context: context, builder: (context) {
+      return AlertDialog(
+        backgroundColor: Color(0xff31363F),
+        title: Text('Open Box'),
+        content: Text('Box opened!'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('OK'),
+          ),
+        ],
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +76,7 @@ class MyHomePage extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: openBox,
         backgroundColor: Color(0xff31363F),
         child: Icon(Icons.add),
         foregroundColor: Color(0xff76ABAE),
