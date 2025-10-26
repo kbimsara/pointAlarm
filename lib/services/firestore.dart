@@ -1,12 +1,10 @@
-import 'dart:ffi';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreService {
   final CollectionReference alarms = FirebaseFirestore.instance.collection('alarms');
 
   // Add an alarm
-  Future<void> addAlarm(String alarmData,Bool isActive, String label, String type) {
+  Future<void> addAlarm(String alarmData, bool isActive, String label, String type) {
     return alarms.add({
       "time": alarmData,
       "isActive": isActive,
