@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:point_alarm/Components/alarmCard.dart';
 
-void main() {
-  runApp(MyHomePage());
+void main()  {
+  runApp( MyHomePage());
 }
 
 class MyHomePage extends StatelessWidget {
