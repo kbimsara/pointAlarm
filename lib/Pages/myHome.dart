@@ -49,7 +49,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 onPressed: () {
                   firestoreService.addAlarm(textController.text, true, "label1", "type1");
-                  Navigator.of(context).pop();
+                  // Navigator.of(context).pop();
+                  textController.clear();
                 },
                 child: Text('Save', style: TextStyle(color: Color(0xff76ABAE))),
                 
