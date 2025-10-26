@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:point_alarm/Components/alarmCard.dart';
+import 'package:point_alarm/services/firestore.dart';
 
-void main()  {
-  runApp( MyHomePage());
+void main() {
+  runApp(MyHomePage());
 }
 
 class MyHomePage extends StatefulWidget {
@@ -11,23 +12,53 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final FirestoreService firestoreService = FirestoreService();
+  final TextEditingController textController = TextEditingController();
   void openBox() {
     // Function to open a box or perform an action
-    showDialog(context: context, builder: (context) {
-      return AlertDialog(
-        backgroundColor: Color(0xff31363F),
-        title: Text('Open Box'),
-        content: Text('Box opened!'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text('OK'),
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Color(0xff31363F),
+          title: Text('Open Box', style: TextStyle(color: Color(0xffEEEEEEF))),
+          content: TextField(
+            controller: textController,
+            style: TextStyle(color: Color(0xffEEEEEEF)),
+            decoration: InputDecoration(
+              hintText: 'Box opened!',
+              hintStyle: TextStyle(color: Color(0xffAAAAAA)),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Color(0xff76ABAE)),
+              ),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Color(0xff76ABAE)),
+              ),
+            ),
           ),
-        ],
-      );
-    });
+
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.all(Color(0xff1E1E1E)),
+                ),
+                onPressed: () {
+                  firestoreService.addAlarm(textController.text, true, "label1", "type1");
+                  Navigator.of(context).pop();
+                },
+                child: Text('Save', style: TextStyle(color: Color(0xff76ABAE))),
+                
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
