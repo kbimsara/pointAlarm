@@ -82,12 +82,3 @@ Contributions are welcome. Suggested workflow:
 
 Include a LICENSE file in the repository if you plan to open-source this project. If none is present, add one to clarify terms.
 
-## Next steps / Recommendations
-
-- Add a short GIF or screenshot to the README for a quick visual.
-- Add platform-specific setup instructions if extra steps are required (e.g., notification permissions, background services).
-- Add unit/widget tests for critical UI and service code.
-
----
-
-If you'd like, I can also: add a screenshot to the README, generate a minimal `CONTRIBUTING.md`, or run `flutter analyze` in your environment and report results. Which would you like next?
