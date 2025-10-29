@@ -24,7 +24,13 @@ class AlarmCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const AlarmPage(),
+            builder: (context) => AlarmPage(
+              id: id,
+              time: time,
+              label: label,
+              type: type,
+              isActive: isActive,
+            ),
           ),
         );
       },
