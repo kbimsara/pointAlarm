@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../Pages/setAlarmPage.dart';
 
 class AlarmCard extends StatelessWidget {
   final num id;
@@ -7,7 +8,8 @@ class AlarmCard extends StatelessWidget {
   final String type;
   final bool isActive;
 
-  AlarmCard({
+  const AlarmCard({
+    super.key,
     required this.id,
     required this.time,
     required this.label,
@@ -17,26 +19,36 @@ class AlarmCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Color(0xff31363F),
-      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-      child: ListTile(
-        title: Text(
-          time,
-          style: TextStyle(
-            color: Color(0xffEEEEEEF),
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const AlarmPage(),
           ),
-        ),
-        subtitle: Text(
-          type + " | " + label,
-          style: TextStyle(color: Color(0xffEEEEEEF), fontSize: 16),
-        ),
-        trailing: Switch(
-          value: isActive,
-          onChanged: (value) {},
-          activeColor: Color(0xff76ABAE),
+        );
+      },
+      child: Card(
+        color: const Color(0xff31363F),
+        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        child: ListTile(
+          title: Text(
+            time,
+            style: const TextStyle(
+              color: Color(0xffEEEEEEF),
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          subtitle: Text(
+            '$type | $label',
+            style: const TextStyle(color: Color(0xffEEEEEEF), fontSize: 16),
+          ),
+          trailing: Switch(
+            value: isActive,
+            onChanged: (value) {},
+            activeColor: const Color(0xff76ABAE),
+          ),
         ),
       ),
     );
