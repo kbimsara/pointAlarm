@@ -13,7 +13,6 @@ class AlarmPage extends StatelessWidget {
       appBar: appBar(),
       body: Scaffold(
         backgroundColor: Color(0xff1E1E1E),
-        appBar: appBar(),
         body: Center(
           child: Text(
             'Alarm Page',
