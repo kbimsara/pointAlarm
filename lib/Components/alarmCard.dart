@@ -5,7 +5,7 @@ class AlarmCard extends StatelessWidget {
   final num id;
   final String time;
   final String label;
-  final String type;
+  final String description;
   final bool isActive;
 
   const AlarmCard({
@@ -13,7 +13,7 @@ class AlarmCard extends StatelessWidget {
     required this.id,
     required this.time,
     required this.label,
-    required this.type,
+    required this.description,
     this.isActive = false,
   });
 
@@ -24,13 +24,14 @@ class AlarmCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => AlarmPage(
-              id: id,
-              time: time,
-              label: label,
-              type: type,
-              isActive: isActive,
-            ),
+            builder:
+                (context) => AlarmPage(
+                  id: id,
+                  time: time,
+                  label: label,
+                  description: description,
+                  isActive: isActive,
+                ),
           ),
         );
       },
@@ -39,7 +40,7 @@ class AlarmCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         child: ListTile(
           title: Text(
-            time,
+            label,
             style: const TextStyle(
               color: Color(0xffEEEEEEF),
               fontSize: 24,
@@ -47,7 +48,7 @@ class AlarmCard extends StatelessWidget {
             ),
           ),
           subtitle: Text(
-            '$type | $label',
+            '$description',
             style: const TextStyle(color: Color(0xffEEEEEEF), fontSize: 16),
           ),
           trailing: Switch(
