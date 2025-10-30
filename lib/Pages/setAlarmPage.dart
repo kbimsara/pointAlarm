@@ -4,7 +4,7 @@ class AlarmPage extends StatelessWidget {
   final num? id;
   final String? time;
   final String? label;
-  final String? type;
+  final String? description;
   final bool? isActive;
 
   const AlarmPage({
@@ -12,7 +12,7 @@ class AlarmPage extends StatelessWidget {
     this.id,
     this.time,
     this.label,
-    this.type,
+    this.description,
     this.isActive,
   });
 
@@ -32,7 +32,7 @@ class AlarmPage extends StatelessWidget {
               _buildDetailItem('ID', id.toString()),
               _buildDetailItem('Current Time', time ?? ''),
               _buildDetailItem('Current Label', label ?? ''),
-              _buildDetailItem('Current Type', type ?? ''),
+              _buildDetailItem('Current description', description ?? ''),
               _buildDetailItem('Status', isActive == true ? 'Active' : 'Inactive'),
               const Divider(color: Color(0xff76ABAE)),
               const SizedBox(height: 20),
@@ -85,6 +85,7 @@ class AlarmPage extends StatelessWidget {
   AppBar appBar(bool isEditing) {
     return AppBar(
       backgroundColor: const Color(0xff1E1E1E),
+      iconTheme: const IconThemeData(color: Color(0xffEEEEEE)),
       title: Text(isEditing ? 'Edit Alarm' : 'New Alarm'),
       titleTextStyle: const TextStyle(
         fontFamily: 'Poppins',
