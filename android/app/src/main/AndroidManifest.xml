@@ -1,4 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Location permissions required for geolocation features -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- If you need background location (not required for one-time getCurrentPosition),
+         add ACCESS_BACKGROUND_LOCATION and request it separately at runtime on Android 10+ -->
+    <!-- <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /> -->
     <application
         android:label="point_alarm"
         android:name="${applicationName}"
