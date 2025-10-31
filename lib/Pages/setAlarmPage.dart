@@ -33,8 +33,26 @@ class AlarmPage extends StatelessWidget {
               _buildDetailItem('Current Time', time ?? ''),
               _buildDetailItem('Current Label', label ?? ''),
               _buildDetailItem('Current description', description ?? ''),
-              _buildDetailItem('Status', isActive == true ? 'Active' : 'Inactive'),
+              _buildDetailItem(
+                'Status',
+                isActive == true ? 'Active' : 'Inactive',
+              ),
               const Divider(color: Color(0xff76ABAE)),
+              const SizedBox(height: 20),
+            ] else ...[
+              _buildFormField('Set Time', TextEditingController(), '07:00 AM'),
+              const SizedBox(height: 20),
+              _buildFormField(
+                'Set Label',
+                TextEditingController(),
+                'Morning Alarm',
+              ),
+              const SizedBox(height: 20),
+              _buildFormField(
+                'Set Description',
+                TextEditingController(),
+                'Once',
+              ),
               const SizedBox(height: 20),
             ],
             const Text(
@@ -70,16 +88,51 @@ class AlarmPage extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                color: Color(0xffEEEEEE),
-                fontSize: 16,
-              ),
+              style: const TextStyle(color: Color(0xffEEEEEE), fontSize: 16),
             ),
           ),
         ],
       ),
     );
   }
+
+  Widget _buildFormField(
+    String label,
+    TextEditingController controller,
+    String hint,
+  ) {
+    return TextField(
+      controller: controller,
+      style: const TextStyle(color: Color(0xffEEEEEE)),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Color(0xff76ABAE)),
+        hintText: 'Box opened!',
+        hintStyle: TextStyle(color: Color(0xffAAAAAA)),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xff76ABAE)),
+        ),
+        focusedBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xff76ABAE)),
+        ),
+      ),
+    );
+  }
+
+  // content: TextField(
+  //   controller: textController,
+  //   style: TextStyle(color: Color(0xffEEEEEEF)),
+  //   decoration: InputDecoration(
+  //     hintText: 'Box opened!',
+  //     hintStyle: TextStyle(color: Color(0xffAAAAAA)),
+  //     enabledBorder: UnderlineInputBorder(
+  //       borderSide: BorderSide(color: Color(0xff76ABAE)),
+  //     ),
+  //     focusedBorder: UnderlineInputBorder(
+  //       borderSide: BorderSide(color: Color(0xff76ABAE)),
+  //     ),
+  //   ),
+  // ),
 
   //App bar
   AppBar appBar(bool isEditing) {
