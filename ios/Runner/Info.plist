@@ -45,5 +45,8 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Permission message shown when requesting location while app is in use -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to your location to select alarm locations.</string>
 </dict>
 </plist>
