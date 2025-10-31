@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:point_alarm/Components/mapCard.dart';
 
 class AlarmPage extends StatelessWidget {
   final num? id;
@@ -37,7 +38,9 @@ class AlarmPage extends StatelessWidget {
                 'Status',
                 isActive == true ? 'Active' : 'Inactive',
               ),
-              const Divider(color: Color(0xff76ABAE)),
+
+              // const Divider(color: Color(0xff76ABAE)),
+              MapCard(label: 'QWEE', description: 'Example Description'),
               const SizedBox(height: 20),
             ] else ...[
               _buildFormField('Set Time', TextEditingController(), '07:00 AM'),
@@ -54,16 +57,35 @@ class AlarmPage extends StatelessWidget {
                 'Once',
               ),
               const SizedBox(height: 20),
-            ],
-            const Text(
-              'Set New Alarm Details',
-              style: TextStyle(
-                color: Color(0xffEEEEEE),
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+              Column(
+                children: [
+                  const SizedBox(height: 20),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Handle save action
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xff76ABAE),
+                      ),
+                      child: const Text(
+                        'Save Alarm',
+                        style: TextStyle(color: Color(0xff1E1E1E)),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 20),
+            ],
+            // const Text(
+            //   'Set New Alarm Details',
+            //   style: TextStyle(
+            //     color: Color(0xffEEEEEE),
+            //     fontSize: 20,
+            //     fontWeight: FontWeight.bold,
+            //   ),
+            // ),
+            // const SizedBox(height: 20),
             // TODO: Add form fields for new alarm details
           ],
         ),
@@ -107,7 +129,7 @@ class AlarmPage extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(color: Color(0xff76ABAE)),
-        hintText: 'Box opened!',
+        hintText: 'Enter Here!',
         hintStyle: TextStyle(color: Color(0xffAAAAAA)),
         enabledBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: Color(0xff76ABAE)),
