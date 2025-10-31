@@ -92,6 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: ListView(
               shrinkWrap: true,
               children: [
+                // cards
                 AlarmCard(
                   id: 1,
                   time: '07:00 AM',
@@ -111,6 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
+      //floatig action button
       floatingActionButton: FloatingActionButton(
         // onPressed: openBox,
         onPressed: () {
