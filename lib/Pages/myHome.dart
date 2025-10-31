@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:point_alarm/Components/alarmCard.dart';
+import 'package:point_alarm/Pages/setAlarmPage.dart';
 import 'package:point_alarm/services/firestore.dart';
 
 void main() {
@@ -44,16 +45,19 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: ElevatedButton(
                 style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all(Color(0xff1E1E1E)),
+                  backgroundColor: MaterialStateProperty.all(Color(0xff1E1E1E)),
                 ),
                 onPressed: () {
-                  firestoreService.addAlarm(textController.text, true, "label1", "type1");
+                  firestoreService.addAlarm(
+                    textController.text,
+                    true,
+                    "label1",
+                    "type1",
+                  );
                   // Navigator.of(context).pop();
                   textController.clear();
                 },
                 child: Text('Save', style: TextStyle(color: Color(0xff76ABAE))),
-                
               ),
             ),
           ],
@@ -88,6 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: ListView(
               shrinkWrap: true,
               children: [
+                // cards
                 AlarmCard(
                   id: 1,
                   time: '07:00 AM',
@@ -107,8 +112,24 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
+      //floatig action button
       floatingActionButton: FloatingActionButton(
-        onPressed: openBox,
+        // onPressed: openBox,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) => AlarmPage(
+                    id: null,
+                    time: null,
+                    label: null,
+                    description: null,
+                    isActive: null,
+                  ),
+            ),
+          );
+        },
         backgroundColor: Color(0xff31363F),
         child: Icon(Icons.add),
         foregroundColor: Color(0xff76ABAE),
