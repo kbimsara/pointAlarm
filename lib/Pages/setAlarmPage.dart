@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:point_alarm/Components/mapCard.dart';
+import 'package:point_alarm/services/locationService.dart';
 
 class AlarmPage extends StatelessWidget {
   final num? id;
@@ -56,7 +57,47 @@ class AlarmPage extends StatelessWidget {
                 TextEditingController(),
                 'Once',
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 15),
+              MapCard(label: "label", description: "description"),
+              const SizedBox(height: 5),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () async {
+                    // Fetch current location and show a preview
+                    final location = Locationservice();
+                    try {
+                      final currentPoint = await location.getCurrentLocation();
+                      // Show coordinates in a dialog
+                      showDialog<void>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('Selected Location'),
+                          content: Text(
+                              'Latitude: ${currentPoint.latitude}\nLongitude: ${currentPoint.longitude}'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(),
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        ),
+                      );
+                    } catch (e) {
+                      // Show error
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text('Could not get location: $e'),
+                      ));
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xff76ABAE),
+                  ),
+                  child: const Text(
+                    'Select Location',
+                    style: TextStyle(color: Color(0xff1E1E1E)),
+                  ),
+                ),
+              ),
               Column(
                 children: [
                   const SizedBox(height: 20),
