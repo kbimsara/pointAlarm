@@ -11,6 +11,7 @@ class AlarmPage extends StatefulWidget {
   final String? label;
   final String? description;
   final bool? isActive;
+  final String? userName;
 
   const AlarmPage({
     super.key,
@@ -19,6 +20,7 @@ class AlarmPage extends StatefulWidget {
     this.label,
     this.description,
     this.isActive,
+    this.userName,
   });
 
   @override
@@ -28,6 +30,7 @@ class AlarmPage extends StatefulWidget {
 class _AlarmPageState extends State<AlarmPage> {
   double? _lat;
   double? _long;
+  String? _userName;
   // Persist the selected dropdown value across rebuilds
   int _selectedValue = 1;
   // Controllers for the form fields (moved to state so they persist)
@@ -48,6 +51,10 @@ class _AlarmPageState extends State<AlarmPage> {
       if (widget.id != null) {
         _loadAlarm();
       }
+      // If a userName was passed in for creating a new alarm, remember it
+      if (widget.userName != null) {
+        _userName = widget.userName;
+      }
     });
   }
 
@@ -63,6 +70,8 @@ class _AlarmPageState extends State<AlarmPage> {
         descriptionController.text = data['description']?.toString() ?? data['type']?.toString() ?? '';
         _lat = (data['lat'] is num) ? (data['lat'] as num).toDouble() : (data['lat'] != null ? double.tryParse(data['lat'].toString()) : null);
         _long = (data['long'] is num) ? (data['long'] as num).toDouble() : (data['long'] != null ? double.tryParse(data['long'].toString()) : null);
+  // preserve user association when editing
+  _userName = data['user']?.toString() ?? _userName;
         // If notifyBeforeKm is present map back to selected value
         final nb = data['notifyBeforeKm'];
         if (nb == 0.25) _selectedValue = 1;
@@ -400,6 +409,7 @@ class _AlarmPageState extends State<AlarmPage> {
       'notifyBeforeKm': notifyBeforeKm,
       'lat': _lat,
       'long': _long,
+      'user': _userName,
     };
 
     try {

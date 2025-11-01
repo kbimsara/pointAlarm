@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+// date formatting is done without external packages to avoid adding dependencies
+import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
 import '../Pages/setAlarmPage.dart';
 import 'package:point_alarm/services/firestore.dart';
 
@@ -9,6 +11,8 @@ class AlarmCard extends StatelessWidget {
   final String description;
   final double? notifyBeforeKm;
   final bool isActive;
+  final String? createdBy;
+  final dynamic createdAt;
 
   const AlarmCard({
     super.key,
@@ -18,6 +22,8 @@ class AlarmCard extends StatelessWidget {
     required this.description,
     this.notifyBeforeKm,
     this.isActive = false,
+    this.createdBy,
+    this.createdAt,
   });
 
   @override
@@ -45,16 +51,27 @@ class AlarmCard extends StatelessWidget {
           title: Text(
             label,
             style: const TextStyle(
-              color: Color(0xffEEEEEEF),
+              color: Color(0xffEEEEEE),
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
           ),
-          subtitle: Text(
-            notifyBeforeKm != null && notifyBeforeKm! > 0
-                ? '$description · Notify: ${notifyBeforeKm!.toStringAsFixed(2)}km'
-                : '$description',
-            style: const TextStyle(color: Color(0xffEEEEEEF), fontSize: 16),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                notifyBeforeKm != null && notifyBeforeKm! > 0
+                    ? '$description · Notify: ${notifyBeforeKm!.toStringAsFixed(2)}km'
+                    : '$description',
+                style: const TextStyle(color: Color(0xffEEEEEE), fontSize: 16),
+              ),
+              const SizedBox(height: 6),
+              if (createdBy != null || createdAt != null)
+                Text(
+                  _buildMetaText(),
+                  style: const TextStyle(color: Color(0xffAAAAAA), fontSize: 12),
+                ),
+            ],
           ),
           trailing: Switch(
             value: isActive,
@@ -71,5 +88,27 @@ class AlarmCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _buildMetaText() {
+    final parts = <String>[];
+    if (createdBy != null && createdBy!.isNotEmpty) parts.add('By $createdBy');
+    if (createdAt != null) {
+      try {
+        DateTime dt;
+        if (createdAt is DateTime) {
+          dt = createdAt as DateTime;
+        } else if (createdAt is Timestamp) {
+          dt = (createdAt as Timestamp).toDate();
+        } else {
+          // try dynamic toDate
+          dt = (createdAt as dynamic).toDate();
+        }
+        parts.add(dt.toLocal().toString().split('.').first);
+      } catch (e) {
+        parts.add(createdAt.toString());
+      }
+    }
+    return parts.join(' · ');
   }
 }
