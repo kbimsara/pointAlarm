@@ -49,10 +49,6 @@ class FirestoreService {
 
   // One-time query: get alarms for a specific user
   Future<QuerySnapshot> getAlarmsForUserOnce(String userName) {
-    // Avoid ordering on the server to prevent requiring a composite index
-    // (where + orderBy on different fields can require an index). The caller
-    // in the UI only checks for existence or inspects docs; ordering can be
-    // done client-side if needed.
     return alarms.where('user', isEqualTo: userName).get();
   }
 
