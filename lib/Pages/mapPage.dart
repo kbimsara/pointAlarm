@@ -4,6 +4,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:point_alarm/Components/popup_message.dart';
 import 'package:point_alarm/services/locationService.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MapPage());
@@ -20,6 +22,10 @@ class _MapPageState extends State<MapPage> {
   double? _lat;
   double? _long;
   final MapController _mapController = MapController();
+
+  final TextEditingController _searchController = TextEditingController();
+  List<Map<String, dynamic>> _searchResults = [];
+  bool _isSearching = false;
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +72,90 @@ class _MapPageState extends State<MapPage> {
               ),
             ],
           ),
+          // Search overlay (top)
+          Positioned(
+            top: 12,
+            left: 12,
+            right: 12,
+            child: Column(
+              children: [
+                Card(
+                  elevation: 4,
+                  child: TextField(
+                    controller: _searchController,
+                    textInputAction: TextInputAction.search,
+                    decoration: InputDecoration(
+                      hintText: 'Search place (e.g. Coffee shop, City)',
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: _isSearching
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: Padding(
+                                padding: EdgeInsets.all(6.0),
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            )
+                          : (_searchController.text.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear),
+                                  onPressed: () {
+                                    setState(() {
+                                      _searchController.clear();
+                                      _searchResults = [];
+                                    });
+                                  },
+                                )
+                              : null),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 14,
+                      ),
+                    ),
+                    onSubmitted: _searchPlaces,
+                    onChanged: (v) {
+                      if (v.trim().length > 2) {
+                        _searchPlaces(v);
+                      } else if (v.trim().isEmpty) {
+                        setState(() => _searchResults = []);
+                      }
+                    },
+                  ),
+                ),
+                if (_searchResults.isNotEmpty)
+                  Container(
+                    margin: const EdgeInsets.only(top: 6),
+                    constraints: const BoxConstraints(maxHeight: 220),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 6,
+                            offset: Offset(0, 2)),
+                      ],
+                    ),
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: _searchResults.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      itemBuilder: (context, index) {
+                        final item = _searchResults[index];
+                        return ListTile(
+                          title: Text(
+                            item['display_name'] ?? '',
+                            style: const TextStyle(fontSize: 13),
+                          ),
+                          onTap: () => _selectSearchResult(item),
+                        );
+                      },
+                    ),
+                  ),
+              ],
+            ),
+          ),
           if (_lat != null && _long != null)
             Positioned(
               left: 12,
@@ -100,6 +190,31 @@ class _MapPageState extends State<MapPage> {
         onPressed: () => _fetchLocation(context),
         label: const Text('Get location'),
         icon: const Icon(Icons.my_location),
+      ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.all(12.0),
+        child: SizedBox(
+          height: 35,
+          child: ElevatedButton.icon(
+            onPressed: (_lat != null && _long != null)
+                ? () {
+                    // return the selected coordinates back to the caller
+                    Navigator.of(context).pop({'lat': _lat!, 'long': _long!});
+                  }
+                : null,
+            icon: const Icon(Icons.my_location, color: Color(0xff1E1E1E)),
+            label: const Text(
+              'Select this location',
+              style: TextStyle(color: Color(0xff1E1E1E)),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xff76ABAE),
+              shape: const StadiumBorder(),
+              elevation: 4,
+              textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -167,6 +282,62 @@ class _MapPageState extends State<MapPage> {
         ).showSnackBar(SnackBar(content: Text('Could not get location: $e')));
       }
     }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _searchPlaces(String query) async {
+    final q = query.trim();
+    if (q.isEmpty) {
+      setState(() => _searchResults = []);
+      return;
+    }
+    setState(() => _isSearching = true);
+    try {
+      // Use Nominatim (OpenStreetMap) public search API
+      final url = Uri.parse(
+          'https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(q)}&format=json&limit=6');
+      final resp = await http.get(url, headers: {
+        'User-Agent': 'point_alarm_app/1.0 (your-email@example.com)'
+      });
+      if (resp.statusCode == 200) {
+        final List<dynamic> data = json.decode(resp.body) as List<dynamic>;
+        final results = data.cast<Map<String, dynamic>>();
+        setState(() {
+          _searchResults = results
+              .map((m) => {
+                    'display_name': m['display_name'] as String? ?? '',
+                    'lat': m['lat'] as String? ?? '',
+                    'lon': m['lon'] as String? ?? '',
+                  })
+              .toList();
+        });
+      } else {
+        setState(() => _searchResults = []);
+      }
+    } catch (e) {
+      setState(() => _searchResults = []);
+    } finally {
+      setState(() => _isSearching = false);
+    }
+  }
+
+  void _selectSearchResult(Map<String, dynamic> item) {
+    final lat = double.tryParse(item['lat'] ?? '');
+    final lon = double.tryParse(item['lon'] ?? '');
+    if (lat == null || lon == null) return;
+    final point = LatLng(lat, lon);
+    setState(() {
+      _lat = lat;
+      _long = lon;
+      _searchResults = [];
+      _searchController.text = item['display_name'] ?? '';
+    });
+    _mapController.move(point, 15.0);
   }
 
   //App bar
