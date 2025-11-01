@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
-class MapCard extends StatelessWidget {
+/// Small map preview card that recenters when [lat]/[long] update.
+class MapCard extends StatefulWidget {
   /// Latitude to show (nullable).
   final double? lat;
   /// Longitude to show (nullable).
@@ -10,8 +12,35 @@ class MapCard extends StatelessWidget {
   const MapCard({super.key, required this.lat, required this.long});
 
   @override
+  State<MapCard> createState() => _MapCardState();
+}
+
+class _MapCardState extends State<MapCard> {
+  final MapController _controller = MapController();
+
+  @override
+  void initState() {
+    super.initState();
+    // If initial coords are present, move after the first frame
+    if (widget.lat != null && widget.long != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _controller.move(LatLng(widget.lat!, widget.long!), 15.0);
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant MapCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // When coordinates change, recenter the map
+    if ((widget.lat != null && widget.long != null) &&
+        (oldWidget.lat != widget.lat || oldWidget.long != widget.long)) {
+      _controller.move(LatLng(widget.lat!, widget.long!), 15.0);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Version-safe: render tiles and overlay a centered pin + coords box
     return Card(
       color: const Color(0xff31363F),
       margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
@@ -20,6 +49,7 @@ class MapCard extends StatelessWidget {
         child: Stack(
           children: [
             FlutterMap(
+              mapController: _controller,
               options: const MapOptions(),
               children: [
                 TileLayer(
@@ -38,7 +68,7 @@ class MapCard extends StatelessWidget {
               ),
             ),
             // Coordinates box
-            if (lat != null && long != null)
+            if (widget.lat != null && widget.long != null)
               Positioned(
                 left: 8,
                 bottom: 8,
@@ -53,14 +83,12 @@ class MapCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Lat: ${lat!.toStringAsFixed(6)}',
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 12),
+                        'Lat: ${widget.lat!.toStringAsFixed(6)}',
+                        style: const TextStyle(color: Colors.white, fontSize: 12),
                       ),
                       Text(
-                        'Lng: ${long!.toStringAsFixed(6)}',
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 12),
+                        'Lng: ${widget.long!.toStringAsFixed(6)}',
+                        style: const TextStyle(color: Colors.white, fontSize: 12),
                       ),
                     ],
                   ),
@@ -72,3 +100,4 @@ class MapCard extends StatelessWidget {
     );
   }
 }
+

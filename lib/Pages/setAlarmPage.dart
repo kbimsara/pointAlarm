@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:point_alarm/Components/mapCard.dart';
+import 'package:point_alarm/Pages/mapPage.dart';
 import 'package:point_alarm/services/locationService.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:point_alarm/Components/popup_message.dart';
@@ -82,7 +83,25 @@ class _AlarmPageState extends State<AlarmPage> {
               Center(
                 child: ElevatedButton(
                   onPressed: () {
-                    _fetchLocation(context);
+                    // Open map page and await selected location
+                    () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MapPage(),
+                        ),
+                      );
+                      if (result != null && result is Map) {
+                        final lat = result['lat'];
+                        final lon = result['long'] ?? result['lng'] ?? result['lon'];
+                        if (lat != null && lon != null) {
+                          setState(() {
+                            _lat = (lat is double) ? lat : double.tryParse(lat.toString());
+                            _long = (lon is double) ? lon : double.tryParse(lon.toString());
+                          });
+                        }
+                      }
+                    }();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xff76ABAE),
