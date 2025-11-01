@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:point_alarm/Components/mapCard.dart';
+import 'package:point_alarm/Pages/mapPage.dart';
 import 'package:point_alarm/services/locationService.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:point_alarm/Components/popup_message.dart';
@@ -82,7 +83,13 @@ class _AlarmPageState extends State<AlarmPage> {
               Center(
                 child: ElevatedButton(
                   onPressed: () {
-                    _fetchLocation(context);
+                    // _fetchLocation(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MapPage(),
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xff76ABAE),
