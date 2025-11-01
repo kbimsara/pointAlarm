@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../Pages/setAlarmPage.dart';
+import 'package:point_alarm/services/firestore.dart';
 
 class AlarmCard extends StatelessWidget {
-  final num id;
+  final String id;
   final String time;
   final String label;
   final String description;
@@ -53,7 +54,14 @@ class AlarmCard extends StatelessWidget {
           ),
           trailing: Switch(
             value: isActive,
-            onChanged: (value) {},
+            onChanged: (value) async {
+              try {
+                final fs = FirestoreService();
+                await fs.updateAlarm(id, {'isActive': value});
+              } catch (e) {
+                // ignore errors; the list will refresh via stream
+              }
+            },
             activeColor: const Color(0xff76ABAE),
           ),
         ),
