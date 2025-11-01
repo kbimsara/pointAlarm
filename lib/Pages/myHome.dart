@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:point_alarm/Components/alarmCard.dart';
 import 'package:point_alarm/Pages/setAlarmPage.dart';
 import 'package:point_alarm/services/firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() {
   runApp(MyHomePage());
@@ -48,12 +49,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   backgroundColor: MaterialStateProperty.all(Color(0xff1E1E1E)),
                 ),
                 onPressed: () {
-                  firestoreService.addAlarm(
-                    textController.text,
-                    true,
-                    "label1",
-                    "type1",
-                  );
+                  firestoreService.addAlarm({
+                    'time': textController.text,
+                    'isActive': true,
+                    'label': 'label1',
+                    'type': 'type1',
+                  });
                   // Navigator.of(context).pop();
                   textController.clear();
                 },
@@ -89,25 +90,35 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           Container(
             margin: EdgeInsets.only(top: 50),
-            child: ListView(
-              shrinkWrap: true,
-              children: [
-                // cards
-                AlarmCard(
-                  id: 1,
-                  time: '07:00 AM',
-                  label: 'Morning Alarm',
-                  description: 'Once',
-                  isActive: true,
-                ),
-                AlarmCard(
-                  id: 2,
-                  time: '08:30 AM',
-                  label: 'Workout Alarm',
-                  description: 'Once',
-                  isActive: false,
-                ),
-              ],
+            child: StreamBuilder<QuerySnapshot>(
+              stream: firestoreService.getAlarmsStream(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final docs = snapshot.data!.docs;
+                if (docs.isEmpty) {
+                  return const Center(child: Text('No alarms found'));
+                }
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: docs.length,
+                  itemBuilder: (context, index) {
+                    final doc = docs[index];
+                    final data = doc.data() as Map<String, dynamic>;
+                    return AlarmCard(
+                      id: doc.id,
+                      time: data['time'] ?? '',
+                      label: data['label'] ?? '',
+                      description: data['type'] ?? data['description'] ?? '',
+                      isActive: data['isActive'] ?? false,
+                    );
+                  },
+                );
+              },
             ),
           ),
         ],
