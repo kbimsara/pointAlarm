@@ -23,7 +23,7 @@ class _MapPageState extends State<MapPage> {
 
   @override
   Widget build(BuildContext context) {
-    _fetchLocation(context);
+    // Do not fetch on every build; fetch via FAB or other explicit actions
     return Scaffold(
       backgroundColor: const Color(0xff1E1E1E),
       appBar: appBar(),
@@ -31,7 +31,16 @@ class _MapPageState extends State<MapPage> {
         children: [
           FlutterMap(
             mapController: _mapController,
-            options: const MapOptions(),
+            options: MapOptions(
+              // When the user taps the map, drop a pin and center the map there
+              onTap: (tapPosition, point) {
+                setState(() {
+                  _lat = point.latitude;
+                  _long = point.longitude;
+                });
+                _mapController.move(point, 15.0);
+              },
+            ),
             children: [
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
