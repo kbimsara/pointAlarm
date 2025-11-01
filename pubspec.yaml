@@ -40,6 +40,8 @@ dependencies:
   geolocator: ^14.0.2
   latlong2: ^0.9.1
   http: ^1.5.0
+  flutter_tts: ^3.6.0
+  audioplayers: ^6.5.1
 
 dev_dependencies:
   flutter_test:
@@ -100,3 +102,6 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+  assets:
+    - assets/sound.mp3

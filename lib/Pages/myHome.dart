@@ -3,10 +3,7 @@ import 'package:point_alarm/Components/alarmCard.dart';
 import 'package:point_alarm/Pages/setAlarmPage.dart';
 import 'package:point_alarm/services/firestore.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-// Note: application entrypoint lives in `lib/main.dart` which initializes
-// Firebase and wraps `MyHomePage` in a `MaterialApp`. Remove the duplicate
-// `main()` from this page to avoid accidental usage as an entrypoint.
+import 'package:point_alarm/services/alarm_monitor.dart';
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -18,6 +15,17 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController textController = TextEditingController();
   String? currentUser;
   final TextEditingController _userNameController = TextEditingController();
+  // Alarm monitor that will trigger a popup when the user gets within
+  // the notifyBeforeKm distance of an alarm's location.
+  final _alarmMonitor = AlarmMonitor();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _alarmMonitor.start(context, user: currentUser);
+    });
+  }
 
   void openBox() {
     // Function to open a box or perform an action
@@ -52,8 +60,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   backgroundColor: MaterialStateProperty.all(Color(0xff1E1E1E)),
                 ),
                 onPressed: () {
-                  // Include the currently selected user when creating the alarm
-                  // so it will be visible when a user is loaded in the main view.
                   firestoreService.addAlarm({
                     'time': textController.text,
                     'isActive': true,
@@ -75,6 +81,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // Ensure the monitor has a context to show popups. Start it lazily the
+    // first time build runs so we have a valid context.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _alarmMonitor.start(context, user: currentUser);
+    });
     return Scaffold(
       backgroundColor: Color(0xff1E1E1E),
       appBar: appBar(),
@@ -98,14 +109,6 @@ class _MyHomePageState extends State<MyHomePage> {
                         return u.isNotEmpty && u == cu;
                       }).toList()
                     : allDocs;
-            // Debug: log current user and how many docs matched the filter
-            // (helps diagnose why loading a user yields no visible cards).
-            // Remove or comment out this print when no longer needed.
-            try {
-              // ignore: avoid_print
-              print('MyHome: currentUser="$currentUser" matchedDocs=${docs.length}');
-            } catch (_) {}
-
             if (docs.isEmpty) {
               return Center(
                 child: Text(
@@ -174,6 +177,7 @@ class _MyHomePageState extends State<MyHomePage> {
   //App bar
   @override
   void dispose() {
+    _alarmMonitor.stop();
     _userNameController.dispose();
     textController.dispose();
     super.dispose();
@@ -190,6 +194,16 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       centerTitle: true,
       actions: [
+        IconButton(
+          tooltip: 'Stop alarms',
+          icon: Icon(Icons.stop_circle_outlined),
+          color: Color(0xff76ABAE),
+          onPressed: () async {
+            await _alarmMonitor.acknowledgeAll();
+            if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Stopped all alarms')));
+          },
+        ),
         Padding(
           padding: const EdgeInsets.only(right: 8.0),
           child: Center(
@@ -240,6 +254,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 setState(() {
                                   currentUser = name;
                                 });
+                                _alarmMonitor.updateUser(name);
                                 if (!mounted) return;
                                 Navigator.of(context).pop();
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -348,6 +363,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     setState(() {
                                       currentUser = name;
                                     });
+                                    _alarmMonitor.updateUser(name);
                                     if (!mounted) return;
                                     Navigator.of(context).pop();
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -359,9 +375,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                     );
                                   } else {
                                     // just set the current user (no alarms yet)
-                                    setState(() {
-                                      currentUser = name;
-                                    });
+                                  setState(() {
+                                    currentUser = name;
+                                  });
+                                  _alarmMonitor.updateUser(name);
                                     if (!mounted) return;
                                     Navigator.of(context).pop();
                                     ScaffoldMessenger.of(context).showSnackBar(
