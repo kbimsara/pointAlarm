@@ -72,56 +72,53 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       backgroundColor: Color(0xff1E1E1E),
       appBar: appBar(),
-      body: Column(
-        children: [
-          //Alarm state
-          Container(
-            margin: EdgeInsets.only(top: 30),
-            child: Center(
-              child: Text(
-                'No Alarms Set',
-                style: TextStyle(
-                  color: Color.fromARGB(255, 184, 181, 181),
-                  fontSize: 20,
-                  fontWeight: FontWeight.normal,
+      body: Container(
+        margin: const EdgeInsets.only(top: 30),
+        child: StreamBuilder<QuerySnapshot>(
+          stream: firestoreService.getAlarmsStream(),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final docs = snapshot.data!.docs;
+            if (docs.isEmpty) {
+              return Center(
+                child: Text(
+                  'No Alarms Set',
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 184, 181, 181),
+                    fontSize: 20,
+                    fontWeight: FontWeight.normal,
+                  ),
                 ),
-              ),
-            ),
-          ),
-          Container(
-            margin: EdgeInsets.only(top: 50),
-            child: StreamBuilder<QuerySnapshot>(
-              stream: firestoreService.getAlarmsStream(),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                }
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                final docs = snapshot.data!.docs;
-                if (docs.isEmpty) {
-                  return const Center(child: Text('No alarms found'));
-                }
-                return ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: docs.length,
-                  itemBuilder: (context, index) {
-                    final doc = docs[index];
-                    final data = doc.data() as Map<String, dynamic>;
+              );
+            }
+            return ListView.builder(
+              padding: const EdgeInsets.only(top: 20),
+              shrinkWrap: true,
+              itemCount: docs.length,
+              itemBuilder: (context, index) {
+                final doc = docs[index];
+                final data = doc.data() as Map<String, dynamic>;
+                    final nb = data['notifyBeforeKm'];
+          final double? notifyBeforeKm = (nb is num)
+            ? nb.toDouble()
+                        : (nb != null ? double.tryParse(nb.toString()) : null);
                     return AlarmCard(
                       id: doc.id,
                       time: data['time'] ?? '',
                       label: data['label'] ?? '',
                       description: data['type'] ?? data['description'] ?? '',
+                      notifyBeforeKm: notifyBeforeKm,
                       isActive: data['isActive'] ?? false,
                     );
-                  },
-                );
               },
-            ),
-          ),
-        ],
+            );
+          },
+        ),
       ),
       //floatig action button
       floatingActionButton: FloatingActionButton(

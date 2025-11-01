@@ -7,6 +7,7 @@ class AlarmCard extends StatelessWidget {
   final String time;
   final String label;
   final String description;
+  final double? notifyBeforeKm;
   final bool isActive;
 
   const AlarmCard({
@@ -15,6 +16,7 @@ class AlarmCard extends StatelessWidget {
     required this.time,
     required this.label,
     required this.description,
+    this.notifyBeforeKm,
     this.isActive = false,
   });
 
@@ -49,7 +51,9 @@ class AlarmCard extends StatelessWidget {
             ),
           ),
           subtitle: Text(
-            '$description',
+            notifyBeforeKm != null && notifyBeforeKm! > 0
+                ? '$description · Notify: ${notifyBeforeKm!.toStringAsFixed(2)}km'
+                : '$description',
             style: const TextStyle(color: Color(0xffEEEEEEF), fontSize: 16),
           ),
           trailing: Switch(

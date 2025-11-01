@@ -97,18 +97,94 @@ class _AlarmPageState extends State<AlarmPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (isEditing) ...[
-              _buildDetailItem('ID', widget.id.toString()),
-              _buildDetailItem('Current Time', widget.time ?? ''),
-              _buildDetailItem('Current Label', widget.label ?? ''),
-              _buildDetailItem('Current description', widget.description ?? ''),
-              _buildDetailItem(
-                'Status',
-                widget.isActive == true ? 'Active' : 'Inactive',
+              // Editable fields when editing an existing alarm
+              // Label
+              _buildFormField('Label', lableController, 'Morning Alarm'),
+              const SizedBox(height: 16),
+              // Description
+              _buildFormField('Description', descriptionController, 'Once'),
+              const SizedBox(height: 12),
+              // Notify before selector
+              Row(
+                children: [
+                  const Text(
+                    'Notify Before:',
+                    style: TextStyle(
+                      color: Color(0xff76ABAE),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  DropdownButton<int>(
+                    value: _selectedValue,
+                    dropdownColor: const Color(0xff31363F),
+                    style: const TextStyle(color: Color(0xffEEEEEE)),
+                    items: const [
+                      DropdownMenuItem(value: 1, child: Text('0.25km')),
+                      DropdownMenuItem(value: 2, child: Text('0.5km')),
+                      DropdownMenuItem(value: 3, child: Text('0.75km')),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedValue = value!;
+                      });
+                    },
+                  ),
+                ],
               ),
-
-              // const Divider(color: Color(0xff76ABAE)),
+              const SizedBox(height: 12),
               MapCard(lat: _lat, long: _long),
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Open map page and await selected location
+                    () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MapPage(),
+                        ),
+                      );
+                      if (result != null && result is Map) {
+                        final lat = result['lat'];
+                        final lon = result['long'] ?? result['lng'] ?? result['lon'];
+                        if (lat != null && lon != null) {
+                          setState(() {
+                            _lat = (lat is double) ? lat : double.tryParse(lat.toString());
+                            _long = (lon is double) ? lon : double.tryParse(lon.toString());
+                          });
+                        }
+                      }
+                    }();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xff76ABAE),
+                  ),
+                  child: const Text(
+                    'Select Location',
+                    style: TextStyle(color: Color(0xff1E1E1E)),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () async {
+                    // Update details (save will call update when widget.id != null)
+                    await saveAlarm();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xff76ABAE),
+                  ),
+                  child: const Text(
+                    'Update Details',
+                    style: TextStyle(color: Color(0xff1E1E1E)),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
             ] else ...[
                 _buildFormField('Set Label', lableController, 'Morning Alarm'),
                 const SizedBox(height: 20),
@@ -215,31 +291,7 @@ class _AlarmPageState extends State<AlarmPage> {
 
   // Location fetching moved to MapPage; no automatic fetch on this page.
 
-  //detail item widget
-  Widget _buildDetailItem(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '$label: ',
-            style: const TextStyle(
-              color: Color(0xff76ABAE),
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(color: Color(0xffEEEEEE), fontSize: 16),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // (detail view removed) Editable form fields are rendered above for both create and edit modes.
 
   //form field widget
   Widget _buildFormField(
