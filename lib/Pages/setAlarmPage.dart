@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:point_alarm/Components/mapCard.dart';
 import 'package:point_alarm/Pages/mapPage.dart';
 import 'package:point_alarm/services/firestore.dart';
-import 'package:point_alarm/services/locationService.dart';
-import 'package:geolocator/geolocator.dart';
+// location fetching removed from this page to avoid auto-updating MapCard
 import 'package:point_alarm/Components/popup_message.dart';
 
 class AlarmPage extends StatefulWidget {
@@ -42,10 +41,10 @@ class _AlarmPageState extends State<AlarmPage> {
     titleController = TextEditingController();
     lableController = TextEditingController();
   descriptionController = TextEditingController();
-    // Delay the fetch until after the first frame so dialogs can be shown
+    // Delay actions until after the first frame. Do NOT auto-fetch device location here
+    // to avoid overwriting any existing alarm coordinates or unexpectedly moving the MapCard.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchLocation(context);
-      // If editing an existing alarm, load it
+      // If editing an existing alarm, load it. Do not call _fetchLocation automatically.
       if (widget.id != null) {
         _loadAlarm();
       }
@@ -111,8 +110,6 @@ class _AlarmPageState extends State<AlarmPage> {
               MapCard(lat: _lat, long: _long),
               const SizedBox(height: 20),
             ] else ...[
-              _buildFormField('Set Time', titleController, '07:00 AM'),
-              const SizedBox(height: 20),
                 _buildFormField('Set Label', lableController, 'Morning Alarm'),
                 const SizedBox(height: 20),
                 _buildFormField('Set Description', descriptionController, 'Once'),
@@ -216,77 +213,7 @@ class _AlarmPageState extends State<AlarmPage> {
     );
   }
 
-  void _fetchLocation(BuildContext context) async {
-    // Fetch current location and show a preview
-    final location = Locationservice();
-    try {
-      final currentPoint = await location.getCurrentLocation();
-      setState(() {
-        _lat = currentPoint.latitude;
-        _long = currentPoint.longitude;
-      });
-      // Show coordinates in a dialog using reusable helper
-      // await showPopupMessage<void>(
-      //   context,
-      //   title: 'Selected Location',
-      //   message:
-      //       'Latitude: ${currentPoint.latitude}\nLongitude: ${currentPoint.longitude}',
-      // );
-    } catch (e) {
-      // Handle common geolocation issues with actionable UI
-      final String msg = e.toString();
-      if (msg.contains('Location services are disabled')) {
-        // Offer to open location settings
-        // Offer to open location settings using reusable dialog
-        await showPopupMessage<void>(
-          context,
-          title: 'Location Services Disabled',
-          message:
-              'Location services are turned off. Please enable them in settings.',
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                Geolocator.openLocationSettings();
-                Navigator.of(context).pop();
-              },
-              child: const Text('Open Settings'),
-            ),
-          ],
-        );
-      } else if (msg.contains('permanently denied')) {
-        // Permission denied forever — open app settings
-        // Permission denied forever — open app settings (via reusable dialog)
-        await showPopupMessage<void>(
-          context,
-          title: 'Location Permission Required',
-          message:
-              'Location permission is permanently denied. Please enable it from app settings.',
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                Geolocator.openAppSettings();
-                Navigator.of(context).pop();
-              },
-              child: const Text('Open App Settings'),
-            ),
-          ],
-        );
-      } else {
-        // Generic error
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Could not get location: $e')));
-      }
-    }
-  }
+  // Location fetching moved to MapPage; no automatic fetch on this page.
 
   //detail item widget
   Widget _buildDetailItem(String label, String value) {
