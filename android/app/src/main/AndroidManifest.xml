@@ -5,9 +5,17 @@
     <!-- Location permissions required for geolocation features -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <!-- If you need background location (not required for one-time getCurrentPosition),
-         add ACCESS_BACKGROUND_LOCATION and request it separately at runtime on Android 10+ -->
-    <!-- <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /> -->
+    <!-- Background location for monitoring alarms while screen is off -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <!-- Foreground service to keep location polling alive -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <!-- Wake lock to prevent CPU sleep during alarm checks -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- Notifications (Android 13+) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Vibrate for alarm notifications -->
+    <uses-permission android:name="android.permission.VIBRATE" />
     <application
         android:label="point_alarm"
         android:name="${applicationName}"

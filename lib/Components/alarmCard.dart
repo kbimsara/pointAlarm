@@ -6,7 +6,6 @@ import 'package:point_alarm/services/firestore.dart';
 
 class AlarmCard extends StatelessWidget {
   final String id;
-  final String time;
   final String label;
   final String description;
   final double? notifyBeforeKm;
@@ -17,7 +16,6 @@ class AlarmCard extends StatelessWidget {
   const AlarmCard({
     super.key,
     required this.id,
-    required this.time,
     required this.label,
     required this.description,
     this.notifyBeforeKm,
@@ -36,7 +34,6 @@ class AlarmCard extends StatelessWidget {
             builder:
                 (context) => AlarmPage(
                   id: id,
-                  time: time,
                   label: label,
                   description: description,
                   isActive: isActive,

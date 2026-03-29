@@ -4,88 +4,51 @@ import 'package:point_alarm/Pages/setAlarmPage.dart';
 import 'package:point_alarm/services/firestore.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:point_alarm/services/alarm_monitor.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class MyHomePage extends StatefulWidget {
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   final FirestoreService firestoreService = FirestoreService();
-  final TextEditingController textController = TextEditingController();
   String? currentUser;
   final TextEditingController _userNameController = TextEditingController();
-  // Alarm monitor that will trigger a popup when the user gets within
-  // the notifyBeforeKm distance of an alarm's location.
   final _alarmMonitor = AlarmMonitor();
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _alarmMonitor.start(context, user: currentUser);
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _requestPermissions();
+      _alarmMonitor.start(user: currentUser);
     });
   }
 
-  void openBox() {
-    // Function to open a box or perform an action
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Color(0xff31363F),
-          title: Text('Open Box', style: TextStyle(color: Color(0xffEEEEEE))),
-          content: TextField(
-            controller: textController,
-            style: TextStyle(color: Color(0xffEEEEEE)),
-            decoration: InputDecoration(
-              hintText: 'Box opened!',
-              hintStyle: TextStyle(color: Color(0xffAAAAAA)),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Color(0xff76ABAE)),
-              ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Color(0xff76ABAE)),
-              ),
-            ),
-          ),
+  Future<void> _requestPermissions() async {
+    // Location permission
+    await Permission.location.request();
+    // Background location (Android 10+)
+    if (await Permission.location.isGranted) {
+      await Permission.locationAlways.request();
+    }
+    // Notification permission (Android 13+)
+    await Permission.notification.request();
+  }
 
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Color(0xff1E1E1E)),
-                ),
-                onPressed: () {
-                  firestoreService.addAlarm({
-                    'time': textController.text,
-                    'isActive': true,
-                    'label': 'label1',
-                    'type': 'type1',
-                    'user': currentUser,
-                  });
-                  textController.clear();
-                  Navigator.of(context).pop();
-                },
-                child: Text('Save', style: TextStyle(color: Color(0xff76ABAE))),
-              ),
-            ),
-          ],
-        );
-      },
-    );
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Keep the monitor alive — it uses a Timer that survives pause,
+    // but restart if it was previously stopped.
+    if (state == AppLifecycleState.resumed) {
+      _alarmMonitor.start(user: currentUser);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Ensure the monitor has a context to show popups. Start it lazily the
-    // first time build runs so we have a valid context.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _alarmMonitor.start(context, user: currentUser);
-    });
     return Scaffold(
       backgroundColor: Color(0xff1E1E1E),
       appBar: appBar(),
@@ -135,7 +98,6 @@ class _MyHomePageState extends State<MyHomePage> {
                         : (nb != null ? double.tryParse(nb.toString()) : null);
                 return AlarmCard(
                   id: doc.id,
-                  time: data['time'] ?? '',
                   label: data['label'] ?? '',
                   description: data['type'] ?? data['description'] ?? '',
                   notifyBeforeKm: notifyBeforeKm,
@@ -158,7 +120,6 @@ class _MyHomePageState extends State<MyHomePage> {
               builder:
                   (context) => AlarmPage(
                     id: null,
-                    time: null,
                     label: null,
                     description: null,
                     isActive: null,
@@ -177,9 +138,9 @@ class _MyHomePageState extends State<MyHomePage> {
   //App bar
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _alarmMonitor.stop();
     _userNameController.dispose();
-    textController.dispose();
     super.dispose();
   }
 

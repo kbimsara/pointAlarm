@@ -7,7 +7,6 @@ import 'package:point_alarm/Components/popup_message.dart';
 
 class AlarmPage extends StatefulWidget {
   final String? id;
-  final String? time;
   final String? label;
   final String? description;
   final bool? isActive;
@@ -16,7 +15,6 @@ class AlarmPage extends StatefulWidget {
   const AlarmPage({
     super.key,
     this.id,
-    this.time,
     this.label,
     this.description,
     this.isActive,
@@ -34,14 +32,12 @@ class _AlarmPageState extends State<AlarmPage> {
   // Persist the selected dropdown value across rebuilds
   int _selectedValue = 1;
   // Controllers for the form fields (moved to state so they persist)
-  late final TextEditingController titleController;
   late final TextEditingController lableController;
   late final TextEditingController descriptionController;
 
   @override
   void initState() {
     super.initState();
-    titleController = TextEditingController();
     lableController = TextEditingController();
   descriptionController = TextEditingController();
     // Delay actions until after the first frame. Do NOT auto-fetch device location here
@@ -65,7 +61,6 @@ class _AlarmPageState extends State<AlarmPage> {
       if (!doc.exists) return;
       final data = doc.data() as Map<String, dynamic>;
       setState(() {
-        titleController.text = data['time']?.toString() ?? '';
         lableController.text = data['label']?.toString() ?? '';
         descriptionController.text = data['description']?.toString() ?? data['type']?.toString() ?? '';
         _lat = (data['lat'] is num) ? (data['lat'] as num).toDouble() : (data['lat'] != null ? double.tryParse(data['lat'].toString()) : null);
@@ -85,7 +80,6 @@ class _AlarmPageState extends State<AlarmPage> {
 
   @override
   void dispose() {
-    titleController.dispose();
     lableController.dispose();
     descriptionController.dispose();
     super.dispose();
@@ -384,17 +378,8 @@ class _AlarmPageState extends State<AlarmPage> {
     );
   }
 
-  printDetails() {
-    print('Alarm Details:');
-    print('ID: ${widget.id}');
-    print('Label: ${widget.label}');
-    print('Description: ${widget.description}');
-    print('Is Active: ${widget.isActive}');
-  }
-
   Future<void> saveAlarm() async {
     final fs = FirestoreService();
-    final time = titleController.text.trim();
     final label = lableController.text.trim();
     // Map selectedValue to a distance in km
     double notifyBeforeKm = 0.25;
@@ -402,7 +387,6 @@ class _AlarmPageState extends State<AlarmPage> {
     if (_selectedValue == 3) notifyBeforeKm = 0.75;
 
     final Map<String, dynamic> doc = {
-      'time': time.isNotEmpty ? time : null,
       'label': label.isNotEmpty ? label : null,
       'description': descriptionController.text.isNotEmpty ? descriptionController.text : null,
       'isActive': true,

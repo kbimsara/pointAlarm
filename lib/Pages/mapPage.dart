@@ -7,10 +7,6 @@ import 'package:point_alarm/services/locationService.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-void main() {
-  runApp(const MapPage());
-}
-
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
 
@@ -194,7 +190,7 @@ class _MapPageState extends State<MapPage> {
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.all(12.0),
         child: SizedBox(
-          height: 35,
+          height: 40,
           child: ElevatedButton.icon(
             onPressed: (_lat != null && _long != null)
                 ? () {
